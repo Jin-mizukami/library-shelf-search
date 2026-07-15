@@ -60,7 +60,7 @@
 
     .tabs {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       gap: 8px;
       margin-bottom: 13px;
     }
@@ -383,7 +383,7 @@
 
     @media (max-width: 620px) {
       .tabs {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr;
       }
 
       .master-toolbar {
@@ -404,6 +404,7 @@
   <div class="tabs">
     <button class="tab active" data-panel="scanPanel">QRコード検索</button>
     <button class="tab" data-panel="searchPanel">本の名前で検索</button>
+    <button class="tab" data-panel="registerPanel">新規登録</button>
     <button class="tab" data-panel="masterPanel">本マスタ一覧</button>
     <button class="tab" data-panel="updatePanel">棚番地変更</button>
   </div>
@@ -424,9 +425,6 @@
         <div class="scan-text">QRコードを黄色い枠へ</div>
       </div>
 
-      <label for="manualId">本IDを直接入力</label>
-      <input id="manualId" type="text" placeholder="例：BK000001">
-      <button id="manualBtn" class="secondary">本IDで検索</button>
 
       <div id="scanMessage" class="message"></div>
       <div id="scanLoading" class="loading">DBを検索しています...</div>
@@ -451,39 +449,38 @@
     </div>
   </section>
 
+  <section id="registerPanel" class="panel">
+    <div class="card">
+      <h2>アイテムを新規登録</h2>
+      <p class="help">
+        QRコードに使用するID、アイテム名、戻し場所の棚番地を登録します。
+      </p>
+
+      <label for="registerId">ID</label>
+      <input id="registerId" type="text" placeholder="例：BK000004">
+
+      <label for="registerName">アイテム名</label>
+      <input id="registerName" type="text" placeholder="例：Excel関数入門">
+
+      <label for="registerShelf">棚番地</label>
+      <input id="registerShelf" type="text" placeholder="例：2F-PC-04-01">
+
+      <button id="registerBtn" class="primary">新規登録する</button>
+
+      <div id="registerMessage" class="message"></div>
+      <div id="registerLoading" class="loading">登録しています...</div>
+      <div id="registerResult" class="result"></div>
+    </div>
+  </section>
+
   <section id="masterPanel" class="panel">
     <div class="card">
       <h2>本マスタ一覧</h2>
       <p class="help">
-        スプレッドシートの本マスタを一覧表示します。
-        本の名前、本ID、著者、棚番地、状態などで絞り込めます。
+        スプレッドシートに登録されている全アイテムを、棚番地順で表示します。
       </p>
 
-      <div class="master-toolbar">
-        <div>
-          <label for="masterKeyword">一覧の絞り込み</label>
-          <input id="masterKeyword"
-                 type="search"
-                 placeholder="例：VBA、BK000001、2F-PC">
-        </div>
-
-        <div>
-          <label for="masterStatus">状態</label>
-          <select id="masterStatus">
-            <option value="">すべて</option>
-            <option value="在架">在架</option>
-            <option value="貸出中">貸出中</option>
-            <option value="返却待ち">返却待ち</option>
-            <option value="配架待ち">配架待ち</option>
-            <option value="修理中">修理中</option>
-            <option value="所在不明">所在不明</option>
-            <option value="除籍">除籍</option>
-          </select>
-        </div>
-      </div>
-
       <button id="loadMasterBtn" class="primary">📖 本マスタを表示</button>
-      <button id="clearMasterBtn" class="secondary">絞り込みを解除</button>
 
       <div id="masterMessage" class="message"></div>
       <div id="masterLoading" class="loading">本マスタを読み込んでいます...</div>
@@ -510,12 +507,6 @@
       <label for="newShelf">新しい棚番地</label>
       <input id="newShelf" type="text" placeholder="例：3F-B-05-02">
 
-      <label for="operator">変更者名</label>
-      <input id="operator" type="text" placeholder="例：水上">
-
-      <label for="adminPin">管理PIN</label>
-      <input id="adminPin" type="password" inputmode="numeric"
-             placeholder="設定シートの管理PIN">
 
       <button id="updateShelfBtn" class="primary">棚番地を変更する</button>
 
@@ -563,22 +554,12 @@
 
   document.getElementById('startBtn').addEventListener('click', startCamera);
   document.getElementById('stopBtn').addEventListener('click', stopCamera);
-  document.getElementById('manualBtn').addEventListener('click', searchManualId);
   document.getElementById('searchBtn').addEventListener('click', searchKeyword);
   document.getElementById('checkBookBtn').addEventListener('click', checkCurrentShelf);
   document.getElementById('updateShelfBtn').addEventListener('click', updateShelf);
   document.getElementById('loadMasterBtn').addEventListener('click', loadMasterList);
-  document.getElementById('clearMasterBtn').addEventListener('click', clearMasterFilter);
+  document.getElementById('registerBtn').addEventListener('click', registerItem);
 
-  document.getElementById('masterKeyword').addEventListener('keydown', event => {
-    if (event.key === 'Enter') loadMasterList();
-  });
-
-  document.getElementById('masterStatus').addEventListener('change', loadMasterList);
-
-  document.getElementById('manualId').addEventListener('keydown', event => {
-    if (event.key === 'Enter') searchManualId();
-  });
 
   document.getElementById('keyword').addEventListener('keydown', event => {
     if (event.key === 'Enter') searchKeyword();
@@ -658,7 +639,6 @@
     scanLocked = true;
 
     const bookId = extractBookId(decodedText);
-    document.getElementById('manualId').value = bookId;
 
     if (navigator.vibrate) navigator.vibrate(120);
 
@@ -682,11 +662,6 @@
     } catch (_) {}
 
     return raw;
-  }
-
-  function searchManualId() {
-    const id = document.getElementById('manualId').value.trim();
-    getBookById(id, 'scan');
   }
 
   function searchKeyword() {
@@ -763,10 +738,75 @@
 
 
 
-  function loadMasterList() {
-    const keyword = document.getElementById('masterKeyword').value.trim();
-    const status = document.getElementById('masterStatus').value;
 
+  function registerItem() {
+    const id = document.getElementById('registerId').value.trim();
+    const name = document.getElementById('registerName').value.trim();
+    const shelf = document.getElementById('registerShelf').value.trim();
+
+    clearArea('register');
+
+    if (!id || !name || !shelf) {
+      showMessage(
+        'register',
+        'ID、アイテム名、棚番地をすべて入力してください。',
+        'error'
+      );
+      return;
+    }
+
+    if (!confirm(
+      'ID「' + id + '」を新規登録しますか？'
+    )) {
+      return;
+    }
+
+    setLoading('register', true);
+
+    callJsonp('register', {
+      id: id,
+      name: name,
+      shelf: shelf
+    })
+      .then(response => {
+        setLoading('register', false);
+
+        if (!response || !response.ok) {
+          showMessage(
+            'register',
+            response?.message || '新規登録に失敗しました。',
+            'error'
+          );
+          return;
+        }
+
+        showMessage('register', response.message, 'success');
+
+        const result = document.getElementById('registerResult');
+        result.innerHTML = `
+          <article class="book-card">
+            <div class="title">${escapeHtml(response.book.title)}</div>
+            <div class="meta">ID：${escapeHtml(response.book.id)}</div>
+
+            <div class="shelf-box">
+              <div class="shelf-label">登録した棚番地</div>
+              <div class="shelf">${escapeHtml(response.book.shelf)}</div>
+            </div>
+          </article>
+        `;
+        result.classList.add('show');
+
+        document.getElementById('registerId').value = '';
+        document.getElementById('registerName').value = '';
+        document.getElementById('registerShelf').value = '';
+      })
+      .catch(error => {
+        setLoading('register', false);
+        showMessage('register', error.message, 'error');
+      });
+  }
+
+  function loadMasterList() {
     const result = document.getElementById('masterResult');
     const summary = document.getElementById('masterSummary');
 
@@ -781,7 +821,7 @@
 
     document.getElementById('masterLoading').classList.add('show');
 
-    callJsonp('list', { q: keyword, status: status })
+    callJsonp('list')
       .then(response => {
         document.getElementById('masterLoading').classList.remove('show');
 
@@ -794,15 +834,11 @@
         }
 
         if (!response.books || response.books.length === 0) {
-          showMasterMessage('条件に合う本はありません。', 'info');
+          showMasterMessage('登録されているアイテムはありません。', 'info');
           return;
         }
 
-        summary.textContent =
-          '表示件数：' + response.count + '件' +
-          (response.truncated
-            ? ' ／ 全' + response.total + '件中、先頭500件を表示'
-            : '');
+        summary.textContent = '登録件数：' + response.count + '件';
         summary.style.display = 'block';
 
         result.innerHTML = response.books.map(book => `
@@ -813,7 +849,7 @@
                   ${escapeHtml(book.title || '名称未登録')}
                 </div>
                 <div class="master-id">
-                  本ID：${escapeHtml(book.id)}
+                  ID：${escapeHtml(book.id)}
                 </div>
               </div>
               <span class="status-badge">
@@ -836,12 +872,6 @@
         document.getElementById('masterLoading').classList.remove('show');
         showMasterMessage(error.message, 'error');
       });
-  }
-
-  function clearMasterFilter() {
-    document.getElementById('masterKeyword').value = '';
-    document.getElementById('masterStatus').value = '';
-    loadMasterList();
   }
 
   function showMasterMessage(text, type) {
@@ -896,15 +926,12 @@
   function updateShelf() {
     const id = document.getElementById('updateBookId').value.trim();
     const shelf = document.getElementById('newShelf').value.trim();
-    const operator = document.getElementById('operator').value.trim();
-    const pin = document.getElementById('adminPin').value.trim();
-
     clearArea('update');
 
-    if (!id || !shelf || !pin) {
+    if (!id || !shelf) {
       showMessage(
         'update',
-        '本ID、新しい棚番地、管理PINを入力してください。',
+        '本IDと新しい棚番地を入力してください。',
         'error'
       );
       return;
@@ -920,9 +947,7 @@
 
     callJsonp('updateShelf', {
       id,
-      shelf,
-      pin,
-      operator
+      shelf
     })
       .then(response => {
         setLoading('update', false);
@@ -955,7 +980,6 @@
         `;
         result.classList.add('show');
 
-        document.getElementById('adminPin').value = '';
       })
       .catch(error => {
         setLoading('update', false);
