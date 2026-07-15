@@ -1,70 +1,68 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <base target="_top">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>本の置き場検索</title>
+  <title>図書館・棚番地検索</title>
 
-  <!-- カメラ画像からQRコードを読むためのライブラリ -->
-  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+  <!-- QRコード読取ライブラリ -->
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
   <style>
     :root {
       --green: #14532d;
-      --green-light: #dcfce7;
-      --green-mid: #22c55e;
-      --ink: #17201b;
+      --green2: #1f7a42;
+      --light: #eef8f1;
+      --yellow: #ffd400;
+      --bg: #f3f7f4;
+      --ink: #17211b;
       --muted: #647067;
-      --bg: #f4f7f5;
-      --card: #ffffff;
+      --border: #d8e3dc;
       --danger: #b91c1c;
-      --border: #d7e0da;
-      --shadow: 0 10px 30px rgba(20, 83, 45, 0.10);
+      --white: #ffffff;
     }
 
     * { box-sizing: border-box; }
 
     body {
       margin: 0;
+      background: var(--bg);
+      color: var(--ink);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
         "Noto Sans JP", "Yu Gothic", sans-serif;
-      color: var(--ink);
-      background: var(--bg);
     }
 
     header {
       background: var(--green);
       color: white;
-      padding: 18px 16px;
+      padding: 16px;
       position: sticky;
       top: 0;
-      z-index: 20;
-      box-shadow: 0 4px 16px rgba(0,0,0,.16);
+      z-index: 50;
     }
 
     header h1 {
       margin: 0;
-      font-size: 20px;
+      font-size: 21px;
     }
 
     header p {
       margin: 5px 0 0;
       font-size: 12px;
-      opacity: .86;
+      opacity: .9;
     }
 
     main {
       width: min(760px, 100%);
       margin: 0 auto;
-      padding: 16px 14px 60px;
+      padding: 15px 13px 60px;
     }
 
     .tabs {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 7px;
-      margin-bottom: 14px;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 13px;
     }
 
     .tab {
@@ -72,27 +70,27 @@
       border-radius: 12px;
       background: white;
       color: var(--green);
-      padding: 11px 4px;
-      font-weight: 700;
+      padding: 12px 8px;
+      font-size: 15px;
+      font-weight: 800;
       cursor: pointer;
     }
 
     .tab.active {
       background: var(--green);
       color: white;
-      border-color: var(--green);
     }
 
     .panel { display: none; }
     .panel.active { display: block; }
 
     .card {
-      background: var(--card);
+      background: white;
       border: 1px solid var(--border);
       border-radius: 18px;
-      padding: 18px;
+      padding: 17px;
       margin-bottom: 14px;
-      box-shadow: var(--shadow);
+      box-shadow: 0 10px 30px rgba(20, 83, 45, .12);
     }
 
     h2 {
@@ -101,104 +99,109 @@
     }
 
     .help {
-      margin: 0 0 14px;
+      margin: 0 0 13px;
       color: var(--muted);
       font-size: 13px;
-      line-height: 1.65;
+      line-height: 1.6;
     }
 
     label {
       display: block;
+      margin: 12px 0 6px;
       font-size: 13px;
-      font-weight: 700;
-      margin: 13px 0 6px;
+      font-weight: 800;
     }
 
     input {
       width: 100%;
-      font-size: 16px;
-      border: 1px solid #b9c8be;
+      border: 1px solid #b8c7bd;
       border-radius: 11px;
       padding: 13px;
-      background: white;
+      font-size: 16px;
     }
 
-    input:focus {
-      outline: 3px solid rgba(34, 197, 94, .20);
-      border-color: var(--green-mid);
-    }
-
-    button.primary,
-    button.secondary,
-    button.danger {
+    button {
       width: 100%;
       border: 0;
       border-radius: 12px;
       padding: 14px;
-      margin-top: 11px;
+      margin-top: 10px;
       font-size: 16px;
-      font-weight: 800;
+      font-weight: 900;
       cursor: pointer;
     }
 
-    button.primary {
+    .primary {
       background: var(--green);
       color: white;
     }
 
-    button.secondary {
-      background: var(--green-light);
+    .secondary {
+      background: var(--light);
       color: var(--green);
     }
 
-    button.danger {
+    .danger {
       background: #fee2e2;
       color: var(--danger);
     }
 
-    button:disabled {
-      opacity: .55;
-      cursor: not-allowed;
-    }
-
-    #cameraBox {
+    #readerWrap {
       display: none;
       position: relative;
-      width: 100%;
       overflow: hidden;
-      border-radius: 14px;
+      border-radius: 16px;
       background: #111;
       margin-top: 12px;
-      aspect-ratio: 4 / 3;
+      min-height: 300px;
     }
 
-    #cameraBox.active { display: block; }
+    #readerWrap.active { display: block; }
 
-    video, canvas {
-      position: absolute;
-      inset: 0;
+    #reader {
       width: 100%;
-      height: 100%;
-      object-fit: cover;
+      min-height: 300px;
+      background: #111;
     }
 
-    canvas { display: none; }
+    #reader video {
+      object-fit: cover !important;
+      width: 100% !important;
+      min-height: 300px !important;
+    }
 
-    .scan-frame {
+    .yellow-frame {
       position: absolute;
-      left: 15%;
-      top: 18%;
-      width: 70%;
-      height: 64%;
-      border: 3px solid #7dff9f;
-      border-radius: 16px;
-      box-shadow: 0 0 0 999px rgba(0, 0, 0, .28);
+      left: 14%;
+      top: 16%;
+      width: 72%;
+      height: 68%;
+      border: 5px solid var(--yellow);
+      border-radius: 18px;
+      box-shadow:
+        0 0 0 999px rgba(0, 0, 0, .28),
+        0 0 18px rgba(255, 212, 0, .8);
       pointer-events: none;
+      z-index: 10;
+    }
+
+    .scan-text {
+      position: absolute;
+      left: 50%;
+      bottom: 13px;
+      transform: translateX(-50%);
+      z-index: 11;
+      background: rgba(0,0,0,.68);
+      color: white;
+      padding: 7px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      white-space: nowrap;
     }
 
     .message {
       display: none;
-      margin: 12px 0;
+      margin-top: 12px;
       padding: 12px;
       border-radius: 11px;
       line-height: 1.55;
@@ -206,41 +209,51 @@
     }
 
     .message.show { display: block; }
-    .message.info { background: #eaf2ff; color: #163d72; }
-    .message.error { background: #fee2e2; color: #8c1d1d; }
-    .message.success { background: var(--green-light); color: var(--green); }
+    .message.info { background: #eaf2ff; color: #173f78; }
+    .message.success { background: #dcfce7; color: #14532d; }
+    .message.error { background: #fee2e2; color: #8f1d1d; }
+
+    .loading {
+      display: none;
+      padding: 14px;
+      text-align: center;
+      color: var(--green);
+      font-weight: 800;
+    }
+
+    .loading.show { display: block; }
 
     .result {
       display: none;
-      margin-top: 14px;
+      margin-top: 13px;
     }
 
     .result.show { display: block; }
 
     .book-card {
-      border-left: 7px solid var(--green);
       background: white;
+      border-left: 7px solid var(--green);
       border-radius: 14px;
       padding: 16px;
       margin-top: 11px;
-      box-shadow: 0 4px 16px rgba(0,0,0,.07);
+      box-shadow: 0 5px 17px rgba(0,0,0,.08);
     }
 
-    .book-title {
+    .title {
       font-size: 18px;
       font-weight: 900;
       margin-bottom: 4px;
     }
 
-    .book-meta {
-      color: var(--muted);
+    .meta {
       font-size: 13px;
-      margin-bottom: 13px;
+      color: var(--muted);
+      margin-bottom: 11px;
     }
 
     .shelf-box {
-      background: var(--green-light);
-      border: 2px solid #86efac;
+      background: #dcfce7;
+      border: 2px solid #7ddc9d;
       border-radius: 13px;
       padding: 14px;
       margin: 10px 0;
@@ -249,55 +262,32 @@
     .shelf-label {
       color: var(--green);
       font-size: 12px;
+      font-weight: 900;
+    }
+
+    .shelf {
+      color: #0b3c20;
+      font-size: 27px;
+      font-weight: 950;
+      word-break: break-word;
+    }
+
+    dl {
+      display: grid;
+      grid-template-columns: 92px 1fr;
+      gap: 7px 10px;
+      margin: 12px 0 0;
+      font-size: 13px;
+    }
+
+    dt {
+      color: var(--muted);
       font-weight: 800;
     }
 
-    .shelf-value {
-      color: #0b3b20;
-      font-size: 26px;
-      font-weight: 950;
-      letter-spacing: .03em;
-      word-break: break-word;
-    }
-
-    .detail-grid {
-      display: grid;
-      grid-template-columns: 95px 1fr;
-      gap: 7px 10px;
-      font-size: 13px;
-      margin-top: 11px;
-    }
-
-    .detail-grid dt {
-      color: var(--muted);
-      font-weight: 700;
-    }
-
-    .detail-grid dd {
+    dd {
       margin: 0;
       word-break: break-word;
-    }
-
-    .loading {
-      display: none;
-      text-align: center;
-      padding: 14px;
-      color: var(--green);
-      font-weight: 700;
-    }
-
-    .loading.show { display: block; }
-
-    .small-note {
-      font-size: 12px;
-      color: var(--muted);
-      line-height: 1.6;
-    }
-
-    @media (max-width: 430px) {
-      .tabs { grid-template-columns: 1fr; }
-      .tab { padding: 9px; }
-      .shelf-value { font-size: 23px; }
     }
   </style>
 </head>
@@ -305,215 +295,182 @@
 <body>
 <header>
   <h1>📚 本の置き場検索</h1>
-  <p>QRコードまたは本の名前から、戻し場所の棚番地を調べます。</p>
+  <p>QRコードを黄色い枠にかざすと、棚番地を検索します。</p>
 </header>
 
 <main>
   <div class="tabs">
-    <button class="tab active" data-panel="qrPanel">QRで検索</button>
-    <button class="tab" data-panel="keywordPanel">名前で検索</button>
-    <button class="tab" data-panel="adminPanel">棚番地変更</button>
+    <button class="tab active" data-panel="scanPanel">QRコード検索</button>
+    <button class="tab" data-panel="searchPanel">本の名前で検索</button>
   </div>
 
-  <section id="qrPanel" class="panel active">
+  <section id="scanPanel" class="panel active">
     <div class="card">
-      <h2>QRコードから戻し場所を検索</h2>
+      <h2>QRコードをかざす</h2>
       <p class="help">
-        本に付いているQRコードをカメラにかざしてください。
-        QRコードには本IDだけが入っていても、URL形式でも検索できます。
+        「カメラを起動」を押し、本のQRコードを黄色い枠の中へ入れてください。
       </p>
 
-      <button id="startCameraBtn" class="primary">📷 カメラを起動する</button>
-      <button id="stopCameraBtn" class="danger" style="display:none;">カメラを止める</button>
+      <button id="startBtn" class="primary">📷 カメラを起動</button>
+      <button id="stopBtn" class="danger" style="display:none;">カメラを停止</button>
 
-      <div id="cameraBox">
-        <video id="video" playsinline muted></video>
-        <canvas id="canvas"></canvas>
-        <div class="scan-frame"></div>
+      <div id="readerWrap">
+        <div id="reader"></div>
+        <div class="yellow-frame"></div>
+        <div class="scan-text">QRコードを黄色い枠へ</div>
       </div>
 
-      <label for="manualId">カメラが使えない場合：本IDを入力</label>
-      <input id="manualId" type="text" placeholder="例：BK000001" autocomplete="off">
-      <button id="manualSearchBtn" class="secondary">本IDで検索する</button>
+      <label for="manualId">本IDを直接入力</label>
+      <input id="manualId" type="text" placeholder="例：BK000001">
+      <button id="manualBtn" class="secondary">本IDで検索</button>
 
-      <div id="qrMessage" class="message"></div>
-      <div id="qrLoading" class="loading">検索しています...</div>
-      <div id="qrResult" class="result"></div>
+      <div id="scanMessage" class="message"></div>
+      <div id="scanLoading" class="loading">DBを検索しています...</div>
+      <div id="scanResult" class="result"></div>
     </div>
   </section>
 
-  <section id="keywordPanel" class="panel">
+  <section id="searchPanel" class="panel">
     <div class="card">
       <h2>本の名前・キーワードから検索</h2>
       <p class="help">
-        本の名前、著者、本ID、登録キーワードの一部を入力してください。
-        空白で区切ると、すべての言葉を含む本を検索します。
+        本の名前、著者、キーワード、本IDの一部を入力してください。
       </p>
 
       <label for="keyword">検索キーワード</label>
-      <input id="keyword" type="search"
-             placeholder="例：VBA 初心者、夏目漱石、在庫管理"
-             autocomplete="off">
-      <button id="keywordSearchBtn" class="primary">🔍 検索する</button>
+      <input id="keyword" type="search" placeholder="例：VBA 初心者、夏目漱石">
+      <button id="searchBtn" class="primary">🔍 検索する</button>
 
-      <div id="keywordMessage" class="message"></div>
-      <div id="keywordLoading" class="loading">検索しています...</div>
-      <div id="keywordResult" class="result"></div>
-    </div>
-  </section>
-
-  <section id="adminPanel" class="panel">
-    <div class="card">
-      <h2>管理者用：棚番地の変更</h2>
-      <p class="help">
-        棚の移動があったときに、DB上の本IDと棚番地の紐づけを変更します。
-        変更前後の棚番地は「変更履歴」シートへ保存されます。
-      </p>
-
-      <label for="adminBookId">本ID</label>
-      <input id="adminBookId" type="text" placeholder="例：BK000001">
-
-      <label for="newShelf">新しい棚番地</label>
-      <input id="newShelf" type="text" placeholder="例：3F-B-05-02">
-
-      <label for="operatorName">変更者名</label>
-      <input id="operatorName" type="text" placeholder="例：水上">
-
-      <label for="adminPin">管理PIN</label>
-      <input id="adminPin" type="password" inputmode="numeric" placeholder="設定シートの管理PIN">
-
-      <button id="updateShelfBtn" class="primary">棚番地を変更する</button>
-
-      <div id="adminMessage" class="message"></div>
-      <div id="adminLoading" class="loading">更新しています...</div>
-      <div id="adminResult" class="result"></div>
-
-      <p class="small-note">
-        初期PINは「1234」です。公開前にスプレッドシートの
-        「設定」シートB2を必ず変更してください。
-      </p>
+      <div id="searchMessage" class="message"></div>
+      <div id="searchLoading" class="loading">DBを検索しています...</div>
+      <div id="searchResult" class="result"></div>
     </div>
   </section>
 </main>
 
 <script>
-  const state = {
-    stream: null,
-    scanning: false,
-    animationId: null
-  };
+  // ============================================================
+  // ★ここだけ変更してください★
+  // GASをウェブアプリとしてデプロイしたときに表示された
+  // https://script.google.com/macros/s/xxxxxxxxxxxx/exec
+  // を、下の文字列へ貼り付けます。
+  // ============================================================
+  const GAS_API_URL = 'ここにGASウェブアプリURLを貼り付ける';
+  // ============================================================
 
-  const video = document.getElementById('video');
-  const canvas = document.getElementById('canvas');
-  const context = canvas.getContext('2d', { willReadFrequently: true });
+  let scanner = null;
+  let isScanning = false;
+  let scanLocked = false;
 
   document.querySelectorAll('.tab').forEach(button => {
-    button.addEventListener('click', () => {
-      stopCamera();
-      document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
-      document.querySelectorAll('.panel').forEach(x => x.classList.remove('active'));
+    button.addEventListener('click', async () => {
+      await stopCamera();
+
+      document.querySelectorAll('.tab')
+        .forEach(tab => tab.classList.remove('active'));
+
+      document.querySelectorAll('.panel')
+        .forEach(panel => panel.classList.remove('active'));
+
       button.classList.add('active');
-      document.getElementById(button.dataset.panel).classList.add('active');
+      document.getElementById(button.dataset.panel)
+        .classList.add('active');
     });
   });
 
-  document.getElementById('startCameraBtn').addEventListener('click', startCamera);
-  document.getElementById('stopCameraBtn').addEventListener('click', stopCamera);
-  document.getElementById('manualSearchBtn').addEventListener('click', searchByManualId);
-  document.getElementById('keywordSearchBtn').addEventListener('click', searchByKeyword);
-  document.getElementById('updateShelfBtn').addEventListener('click', updateShelf);
+  document.getElementById('startBtn').addEventListener('click', startCamera);
+  document.getElementById('stopBtn').addEventListener('click', stopCamera);
+  document.getElementById('manualBtn').addEventListener('click', searchManualId);
+  document.getElementById('searchBtn').addEventListener('click', searchKeyword);
 
   document.getElementById('manualId').addEventListener('keydown', event => {
-    if (event.key === 'Enter') searchByManualId();
+    if (event.key === 'Enter') searchManualId();
   });
 
   document.getElementById('keyword').addEventListener('keydown', event => {
-    if (event.key === 'Enter') searchByKeyword();
+    if (event.key === 'Enter') searchKeyword();
   });
 
   async function startCamera() {
-    clearArea('qr');
+    clearArea('scan');
 
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      showMessage('qr', 'このブラウザではカメラを利用できません。本IDを手入力してください。', 'error');
+    if (!apiUrlIsValid()) {
+      showMessage(
+        'scan',
+        'GAS_API_URLが未設定です。index.htmlの上部にある設定欄へGASの/exec URLを貼ってください。',
+        'error'
+      );
       return;
     }
 
-    if (typeof jsQR !== 'function') {
-      showMessage('qr', 'QR読取ライブラリを読み込めませんでした。本IDを手入力してください。', 'error');
+    if (typeof Html5Qrcode !== 'function') {
+      showMessage('scan', 'QR読取ライブラリを読み込めませんでした。', 'error');
       return;
     }
 
     try {
-      state.stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: { ideal: 'environment' },
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
+      scanner = new Html5Qrcode('reader');
+      scanLocked = false;
+
+      await scanner.start(
+        { facingMode: 'environment' },
+        {
+          fps: 12,
+          qrbox: function(width, height) {
+            return {
+              width: Math.floor(width * 0.72),
+              height: Math.floor(height * 0.68)
+            };
+          },
+          aspectRatio: 1.333334
         },
-        audio: false
-      });
+        onScanSuccess,
+        function() {}
+      );
 
-      video.srcObject = state.stream;
-      await video.play();
+      isScanning = true;
+      document.getElementById('readerWrap').classList.add('active');
+      document.getElementById('startBtn').style.display = 'none';
+      document.getElementById('stopBtn').style.display = 'block';
 
-      state.scanning = true;
-      document.getElementById('cameraBox').classList.add('active');
-      document.getElementById('startCameraBtn').style.display = 'none';
-      document.getElementById('stopCameraBtn').style.display = 'block';
-
-      scanFrame();
     } catch (error) {
       showMessage(
-        'qr',
-        'カメラを起動できませんでした。ブラウザのカメラ許可を確認するか、本IDを手入力してください。',
+        'scan',
+        'カメラを起動できませんでした。ChromeまたはSafariで開き、カメラを許可してください。詳細: ' + error,
         'error'
       );
     }
   }
 
-  function scanFrame() {
-    if (!state.scanning) return;
+  async function stopCamera() {
+    if (!scanner || !isScanning) return;
 
-    if (video.readyState === video.HAVE_ENOUGH_DATA) {
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    try {
+      await scanner.stop();
+      await scanner.clear();
+    } catch (_) {}
 
-      const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-      const code = jsQR(imageData.data, imageData.width, imageData.height, {
-        inversionAttempts: 'dontInvert'
-      });
+    scanner = null;
+    isScanning = false;
+    scanLocked = false;
 
-      if (code && code.data) {
-        const bookId = extractBookId(code.data);
-        stopCamera();
-        document.getElementById('manualId').value = bookId;
-        getBook(bookId, 'qr');
-        return;
-      }
-    }
-
-    state.animationId = requestAnimationFrame(scanFrame);
+    document.getElementById('readerWrap').classList.remove('active');
+    document.getElementById('startBtn').style.display = 'block';
+    document.getElementById('stopBtn').style.display = 'none';
   }
 
-  function stopCamera() {
-    state.scanning = false;
+  async function onScanSuccess(decodedText) {
+    if (scanLocked) return;
 
-    if (state.animationId) {
-      cancelAnimationFrame(state.animationId);
-      state.animationId = null;
-    }
+    scanLocked = true;
 
-    if (state.stream) {
-      state.stream.getTracks().forEach(track => track.stop());
-      state.stream = null;
-    }
+    const bookId = extractBookId(decodedText);
+    document.getElementById('manualId').value = bookId;
 
-    video.srcObject = null;
-    document.getElementById('cameraBox').classList.remove('active');
-    document.getElementById('startCameraBtn').style.display = 'block';
-    document.getElementById('stopCameraBtn').style.display = 'none';
+    if (navigator.vibrate) navigator.vibrate(120);
+
+    await stopCamera();
+    getBookById(bookId, 'scan');
   }
 
   function extractBookId(rawValue) {
@@ -521,24 +478,65 @@
 
     try {
       const url = new URL(raw);
-      const fromQuery = url.searchParams.get('id');
-      if (fromQuery) return fromQuery.trim();
+      const idParam = url.searchParams.get('id');
+
+      if (idParam) return idParam.trim();
 
       const parts = url.pathname.split('/').filter(Boolean);
-      if (parts.length) return decodeURIComponent(parts[parts.length - 1]).trim();
-    } catch (_) {
-      // URLでなければ、そのまま本IDとして扱う
-    }
+      if (parts.length) {
+        return decodeURIComponent(parts[parts.length - 1]).trim();
+      }
+    } catch (_) {}
 
     return raw;
   }
 
-  function searchByManualId() {
+  function searchManualId() {
     const id = document.getElementById('manualId').value.trim();
-    getBook(id, 'qr');
+    getBookById(id, 'scan');
   }
 
-  function getBook(id, area) {
+  function searchKeyword() {
+    const keyword = document.getElementById('keyword').value.trim();
+
+    clearArea('search');
+
+    if (!keyword) {
+      showMessage('search', '検索キーワードを入力してください。', 'error');
+      return;
+    }
+
+    if (!apiUrlIsValid()) {
+      showMessage('search', 'GAS_API_URLが未設定です。', 'error');
+      return;
+    }
+
+    setLoading('search', true);
+
+    callJsonp('search', { q: keyword })
+      .then(response => {
+        setLoading('search', false);
+
+        if (!response || !response.ok) {
+          showMessage('search', response?.message || '検索に失敗しました。', 'error');
+          return;
+        }
+
+        if (!response.books || response.books.length === 0) {
+          showMessage('search', '該当する本が見つかりませんでした。', 'info');
+          return;
+        }
+
+        showMessage('search', response.count + '件見つかりました。', 'success');
+        renderBooks(response.books, 'search');
+      })
+      .catch(error => {
+        setLoading('search', false);
+        showMessage('search', error.message, 'error');
+      });
+  }
+
+  function getBookById(id, area) {
     clearArea(area);
 
     if (!id) {
@@ -546,10 +544,15 @@
       return;
     }
 
+    if (!apiUrlIsValid()) {
+      showMessage(area, 'GAS_API_URLが未設定です。', 'error');
+      return;
+    }
+
     setLoading(area, true);
 
-    google.script.run
-      .withSuccessHandler(response => {
+    callJsonp('book', { id })
+      .then(response => {
         setLoading(area, false);
 
         if (!response || !response.ok) {
@@ -557,143 +560,97 @@
           return;
         }
 
-        renderSingleBook(response.book, area);
+        renderBooks([response.book], area);
       })
-      .withFailureHandler(error => {
+      .catch(error => {
         setLoading(area, false);
-        showMessage(area, '通信エラー: ' + error.message, 'error');
-      })
-      .getBookById(id);
+        showMessage(area, error.message, 'error');
+      });
   }
 
-  function searchByKeyword() {
-    const keyword = document.getElementById('keyword').value.trim();
-    clearArea('keyword');
-
-    if (!keyword) {
-      showMessage('keyword', '検索キーワードを入力してください。', 'error');
-      return;
-    }
-
-    setLoading('keyword', true);
-
-    google.script.run
-      .withSuccessHandler(response => {
-        setLoading('keyword', false);
-
-        if (!response || !response.ok) {
-          showMessage('keyword', response?.message || '検索に失敗しました。', 'error');
-          return;
-        }
-
-        if (!response.books.length) {
-          showMessage('keyword', response.message, 'info');
-          return;
-        }
-
-        showMessage('keyword', response.count + '件見つかりました。', 'success');
-        renderBookList(response.books, 'keyword');
-      })
-      .withFailureHandler(error => {
-        setLoading('keyword', false);
-        showMessage('keyword', '通信エラー: ' + error.message, 'error');
-      })
-      .searchBooks(keyword);
+  function apiUrlIsValid() {
+    return GAS_API_URL.startsWith('https://script.google.com/macros/s/')
+      && GAS_API_URL.endsWith('/exec');
   }
 
-  function updateShelf() {
-    const id = document.getElementById('adminBookId').value.trim();
-    const shelf = document.getElementById('newShelf').value.trim();
-    const operator = document.getElementById('operatorName').value.trim();
-    const pin = document.getElementById('adminPin').value.trim();
+  function callJsonp(action, params = {}) {
+    return new Promise((resolve, reject) => {
+      const callbackName =
+        '__libraryCallback_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
 
-    clearArea('admin');
+      const script = document.createElement('script');
 
-    if (!id || !shelf || !pin) {
-      showMessage('admin', '本ID、新しい棚番地、管理PINを入力してください。', 'error');
-      return;
-    }
+      const timeout = setTimeout(() => {
+        cleanup();
+        reject(new Error('APIの応答がありません。GASの公開設定を確認してください。'));
+      }, 15000);
 
-    if (!confirm('本ID「' + id + '」の棚番地を「' + shelf + '」へ変更しますか？')) {
-      return;
-    }
+      function cleanup() {
+        clearTimeout(timeout);
+        delete window[callbackName];
+        script.remove();
+      }
 
-    setLoading('admin', true);
+      window[callbackName] = data => {
+        cleanup();
+        resolve(data);
+      };
 
-    google.script.run
-      .withSuccessHandler(response => {
-        setLoading('admin', false);
+      const url = new URL(GAS_API_URL);
+      url.searchParams.set('action', action);
+      url.searchParams.set('callback', callbackName);
 
-        if (!response || !response.ok) {
-          showMessage('admin', response?.message || '更新に失敗しました。', 'error');
-          return;
-        }
+      Object.entries(params).forEach(([key, value]) => {
+        url.searchParams.set(key, value);
+      });
 
-        showMessage('admin', response.message, 'success');
+      script.src = url.toString();
 
-        document.getElementById('adminResult').innerHTML = `
-          <div class="book-card">
-            <div class="book-title">${escapeHtml(response.book.title)}</div>
-            <div class="book-meta">本ID：${escapeHtml(response.book.id)}</div>
-            <div class="detail-grid">
-              <dt>変更前</dt>
-              <dd>${escapeHtml(response.book.oldShelf)}</dd>
-              <dt>変更後</dt>
-              <dd><strong>${escapeHtml(response.book.shelf)}</strong></dd>
-            </div>
-          </div>`;
-        document.getElementById('adminResult').classList.add('show');
-        document.getElementById('adminPin').value = '';
-      })
-      .withFailureHandler(error => {
-        setLoading('admin', false);
-        showMessage('admin', '通信エラー: ' + error.message, 'error');
-      })
-      .updateShelf(id, shelf, pin, operator);
+      script.onerror = () => {
+        cleanup();
+        reject(new Error('GAS APIへ接続できませんでした。'));
+      };
+
+      document.body.appendChild(script);
+    });
   }
 
-  function renderSingleBook(book, area) {
+  function renderBooks(books, area) {
     const result = document.getElementById(area + 'Result');
-    result.innerHTML = createBookCard(book);
-    result.classList.add('show');
-  }
 
-  function renderBookList(books, area) {
-    const result = document.getElementById(area + 'Result');
-    result.innerHTML = books.map(createBookCard).join('');
-    result.classList.add('show');
-  }
-
-  function createBookCard(book) {
-    const status = book.status || '未設定';
-    const shelf = book.shelf || '棚番地未登録';
-
-    return `
+    result.innerHTML = books.map(book => `
       <article class="book-card">
-        <div class="book-title">${escapeHtml(book.title || '名称未登録')}</div>
-        <div class="book-meta">
+        <div class="title">${escapeHtml(book.title || '名称未登録')}</div>
+        <div class="meta">
           ${book.author ? escapeHtml(book.author) + ' ／ ' : ''}
           本ID：${escapeHtml(book.id)}
         </div>
 
         <div class="shelf-box">
           <div class="shelf-label">戻し場所・棚番地</div>
-          <div class="shelf-value">${escapeHtml(shelf)}</div>
+          <div class="shelf">${escapeHtml(book.shelf || '棚番地未登録')}</div>
         </div>
 
-        <dl class="detail-grid">
+        <dl>
           <dt>本ID</dt>
           <dd>${escapeHtml(book.id)}</dd>
+
           <dt>状態</dt>
-          <dd>${escapeHtml(status)}</dd>
+          <dd>${escapeHtml(book.status || '未設定')}</dd>
+
           <dt>キーワード</dt>
           <dd>${escapeHtml(book.keywords || '-')}</dd>
+
           <dt>最終更新</dt>
           <dd>${escapeHtml(book.updatedAt || '-')}</dd>
+
           <dt>備考</dt>
           <dd>${escapeHtml(book.notes || '-')}</dd>
         </dl>
-      </article>`;
+      </article>
+    `).join('');
+
+    result.classList.add('show');
   }
 
   function clearArea(area) {
@@ -702,18 +659,20 @@
 
     message.textContent = '';
     message.className = 'message';
+
     result.innerHTML = '';
     result.className = 'result';
   }
 
   function showMessage(area, text, type) {
-    const element = document.getElementById(area + 'Message');
-    element.textContent = text;
-    element.className = 'message show ' + type;
+    const message = document.getElementById(area + 'Message');
+    message.textContent = text;
+    message.className = 'message show ' + type;
   }
 
-  function setLoading(area, isLoading) {
-    document.getElementById(area + 'Loading').classList.toggle('show', isLoading);
+  function setLoading(area, enabled) {
+    document.getElementById(area + 'Loading')
+      .classList.toggle('show', enabled);
   }
 
   function escapeHtml(value) {
@@ -725,7 +684,9 @@
       .replaceAll("'", '&#039;');
   }
 
-  window.addEventListener('pagehide', stopCamera);
+  window.addEventListener('pagehide', () => {
+    stopCamera();
+  });
 </script>
 </body>
 </html>
