@@ -2,107 +2,133 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>図書館・棚番地検索</title>
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, viewport-fit=cover">
 
-  <!-- QRコード読取ライブラリ -->
-  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  <title>アイテム棚番地管理</title>
+
+  <meta name="theme-color" content="#14532d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style"
+        content="black-translucent">
+  <meta name="apple-mobile-web-app-title"
+        content="棚番地管理">
+
+  <script
+    src="https://unpkg.com/html5-qrcode"
+    type="text/javascript">
+  </script>
 
   <style>
     :root {
       --green: #14532d;
-      --green2: #1f7a42;
-      --light: #eef8f1;
+      --green-2: #1f7a42;
+      --green-light: #eaf7ee;
       --yellow: #ffd400;
-      --bg: #f3f7f4;
-      --ink: #17211b;
-      --muted: #647067;
-      --border: #d8e3dc;
-      --danger: #b91c1c;
+      --bg: #f2f6f3;
       --white: #ffffff;
+      --ink: #17211b;
+      --muted: #68756d;
+      --border: #d6e1da;
+      --danger: #b42318;
+      --shadow: 0 10px 28px rgba(20, 83, 45, .11);
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     body {
       margin: 0;
       background: var(--bg);
       color: var(--ink);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
-        "Noto Sans JP", "Yu Gothic", sans-serif;
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        "Noto Sans JP",
+        "Yu Gothic",
+        sans-serif;
     }
 
     header {
-      background: var(--green);
-      color: white;
-      padding: 16px;
       position: sticky;
       top: 0;
       z-index: 50;
+      padding: 15px 16px;
+      background: var(--green);
+      color: white;
+      box-shadow: 0 4px 16px rgba(0,0,0,.18);
     }
 
     header h1 {
       margin: 0;
-      font-size: 21px;
+      font-size: 20px;
     }
 
     header p {
-      margin: 5px 0 0;
+      margin: 4px 0 0;
       font-size: 12px;
-      opacity: .9;
+      opacity: .88;
     }
 
     main {
-      width: min(760px, 100%);
+      width: min(780px, 100%);
       margin: 0 auto;
-      padding: 15px 13px 60px;
+      padding: 14px 13px 70px;
     }
 
     .tabs {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
-      gap: 8px;
+      gap: 7px;
       margin-bottom: 13px;
     }
 
     .tab {
+      min-height: 48px;
       border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: 11px;
       background: white;
       color: var(--green);
-      padding: 12px 8px;
-      font-size: 15px;
-      font-weight: 800;
+      padding: 8px 5px;
+      font-size: 13px;
+      font-weight: 850;
       cursor: pointer;
     }
 
     .tab.active {
       background: var(--green);
       color: white;
+      border-color: var(--green);
     }
 
-    .panel { display: none; }
-    .panel.active { display: block; }
+    .panel {
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+    }
 
     .card {
       background: white;
       border: 1px solid var(--border);
       border-radius: 18px;
       padding: 17px;
-      margin-bottom: 14px;
-      box-shadow: 0 10px 30px rgba(20, 83, 45, .12);
+      box-shadow: var(--shadow);
     }
 
     h2 {
-      margin: 0 0 8px;
+      margin: 0 0 7px;
       font-size: 19px;
     }
 
     .help {
-      margin: 0 0 13px;
+      margin: 0 0 14px;
       color: var(--muted);
       font-size: 13px;
-      line-height: 1.6;
+      line-height: 1.65;
     }
 
     label {
@@ -114,10 +140,16 @@
 
     input {
       width: 100%;
-      border: 1px solid #b8c7bd;
+      border: 1px solid #b7c5bb;
       border-radius: 11px;
       padding: 13px;
+      background: white;
       font-size: 16px;
+    }
+
+    input:focus {
+      outline: 3px solid rgba(31, 122, 66, .16);
+      border-color: var(--green-2);
     }
 
     button {
@@ -137,12 +169,12 @@
     }
 
     .secondary {
-      background: var(--light);
+      background: var(--green-light);
       color: var(--green);
     }
 
     .danger {
-      background: #fee2e2;
+      background: #fee4e2;
       color: var(--danger);
     }
 
@@ -150,13 +182,15 @@
       display: none;
       position: relative;
       overflow: hidden;
+      min-height: 300px;
+      margin-top: 12px;
       border-radius: 16px;
       background: #111;
-      margin-top: 12px;
-      min-height: 300px;
     }
 
-    #readerWrap.active { display: block; }
+    #readerWrap.active {
+      display: block;
+    }
 
     #reader {
       width: 100%;
@@ -165,9 +199,9 @@
     }
 
     #reader video {
-      object-fit: cover !important;
       width: 100% !important;
       min-height: 300px !important;
+      object-fit: cover !important;
     }
 
     .yellow-frame {
@@ -176,27 +210,28 @@
       top: 16%;
       width: 72%;
       height: 68%;
+      z-index: 10;
       border: 5px solid var(--yellow);
       border-radius: 18px;
       box-shadow:
-        0 0 0 999px rgba(0, 0, 0, .28),
-        0 0 18px rgba(255, 212, 0, .8);
+        0 0 0 999px rgba(0,0,0,.27),
+        0 0 20px rgba(255,212,0,.8);
       pointer-events: none;
-      z-index: 10;
     }
 
     .scan-text {
       position: absolute;
       left: 50%;
       bottom: 13px;
-      transform: translateX(-50%);
       z-index: 11;
-      background: rgba(0,0,0,.68);
-      color: white;
+      transform: translateX(-50%);
       padding: 7px 12px;
       border-radius: 999px;
+      background: rgba(0,0,0,.7);
+      color: white;
       font-size: 12px;
       white-space: nowrap;
+      pointer-events: none;
     }
 
     .message {
@@ -204,14 +239,28 @@
       margin-top: 12px;
       padding: 12px;
       border-radius: 11px;
-      line-height: 1.55;
       font-size: 14px;
+      line-height: 1.55;
     }
 
-    .message.show { display: block; }
-    .message.info { background: #eaf2ff; color: #173f78; }
-    .message.success { background: #dcfce7; color: #14532d; }
-    .message.error { background: #fee2e2; color: #8f1d1d; }
+    .message.show {
+      display: block;
+    }
+
+    .message.info {
+      background: #edf3ff;
+      color: #284b80;
+    }
+
+    .message.success {
+      background: #dcfce7;
+      color: #14532d;
+    }
+
+    .message.error {
+      background: #fee4e2;
+      color: #8d1a13;
+    }
 
     .loading {
       display: none;
@@ -221,42 +270,45 @@
       font-weight: 800;
     }
 
-    .loading.show { display: block; }
+    .loading.show {
+      display: block;
+    }
 
     .result {
       display: none;
       margin-top: 13px;
     }
 
-    .result.show { display: block; }
+    .result.show {
+      display: block;
+    }
 
-    .book-card {
-      background: white;
+    .item-card {
+      margin-top: 11px;
+      padding: 16px;
       border-left: 7px solid var(--green);
       border-radius: 14px;
-      padding: 16px;
-      margin-top: 11px;
-      box-shadow: 0 5px 17px rgba(0,0,0,.08);
+      background: white;
+      box-shadow: 0 5px 16px rgba(0,0,0,.08);
     }
 
-    .title {
-      font-size: 18px;
-      font-weight: 900;
+    .item-name {
       margin-bottom: 4px;
+      font-size: 18px;
+      font-weight: 950;
     }
 
-    .meta {
-      font-size: 13px;
+    .item-id {
       color: var(--muted);
-      margin-bottom: 11px;
+      font-size: 13px;
     }
 
     .shelf-box {
-      background: #dcfce7;
+      margin: 11px 0;
+      padding: 14px;
       border: 2px solid #7ddc9d;
       border-radius: 13px;
-      padding: 14px;
-      margin: 10px 0;
+      background: #dcfce7;
     }
 
     .shelf-label {
@@ -265,96 +317,43 @@
       font-weight: 900;
     }
 
-    .shelf {
+    .shelf-value {
       color: #0b3c20;
       font-size: 27px;
       font-weight: 950;
       word-break: break-word;
     }
 
-    dl {
-      display: grid;
-      grid-template-columns: 92px 1fr;
-      gap: 7px 10px;
-      margin: 12px 0 0;
-      font-size: 13px;
-    }
-
-    dt {
+    .updated {
       color: var(--muted);
-      font-weight: 800;
-    }
-
-    dd {
-      margin: 0;
-      word-break: break-word;
-    }
-  
-    @media (max-width: 520px) {
-      .tabs {
-        grid-template-columns: 1fr;
-      }
-    }
-  
-    select {
-      width: 100%;
-      border: 1px solid #b8c7bd;
-      border-radius: 11px;
-      padding: 13px;
-      font-size: 16px;
-      background: white;
-    }
-
-    .master-toolbar {
-      display: grid;
-      grid-template-columns: 1fr 170px;
-      gap: 9px;
-      align-items: end;
+      font-size: 12px;
     }
 
     .master-summary {
       margin-top: 12px;
       padding: 10px 12px;
-      background: var(--light);
       border-radius: 10px;
+      background: var(--green-light);
       color: var(--green);
       font-size: 13px;
-      font-weight: 800;
+      font-weight: 850;
     }
 
     .master-list {
-      margin-top: 12px;
       display: grid;
       gap: 9px;
+      margin-top: 12px;
     }
 
     .master-row {
+      padding: 13px;
       border: 1px solid var(--border);
       border-radius: 13px;
-      padding: 13px;
       background: white;
     }
 
-    .master-row-top {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      align-items: flex-start;
-    }
-
-    .master-title {
+    .master-name {
       font-size: 16px;
-      font-weight: 900;
-      line-height: 1.4;
-    }
-
-    .status-badge {
-      flex: 0 0 auto;
-      padding: 5px 9px;
-      border-radius: 999px;
-      background: #e8f5ec;
-      color: var(--green);
-      font-size: 11px;
       font-weight: 900;
     }
 
@@ -367,203 +366,365 @@
     .master-shelf {
       margin-top: 9px;
       padding: 9px 11px;
-      background: #fff8c7;
       border: 1px solid #eed65f;
       border-radius: 9px;
+      background: #fff8c7;
       font-size: 15px;
       font-weight: 900;
     }
 
-    .master-detail {
-      margin-top: 8px;
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.55;
+    @media (max-width: 660px) {
+      .tabs {
+        grid-template-columns: 1fr 1fr;
+      }
     }
 
-    @media (max-width: 620px) {
+    @media (max-width: 390px) {
       .tabs {
         grid-template-columns: 1fr;
       }
 
-      .master-toolbar {
-        grid-template-columns: 1fr;
+      .shelf-value {
+        font-size: 23px;
       }
     }
-
   </style>
 </head>
 
 <body>
 <header>
-  <h1>📚 本の置き場検索</h1>
-  <p>QRコードを黄色い枠にかざすと、棚番地を検索します。</p>
+  <h1>📦 アイテム棚番地管理</h1>
+  <p>工場・倉庫内のアイテム保管場所を検索・登録・変更します。</p>
 </header>
 
 <main>
-  <div class="tabs">
-    <button class="tab active" data-panel="scanPanel">QRコード検索</button>
-    <button class="tab" data-panel="searchPanel">本の名前で検索</button>
-    <button class="tab" data-panel="registerPanel">新規登録</button>
-    <button class="tab" data-panel="masterPanel">本マスタ一覧</button>
-    <button class="tab" data-panel="updatePanel">棚番地変更</button>
-  </div>
+  <nav class="tabs">
+    <button class="tab active"
+            data-panel="scanPanel">
+      QR検索
+    </button>
 
-  <section id="scanPanel" class="panel active">
+    <button class="tab"
+            data-panel="searchPanel">
+      アイテム名検索
+    </button>
+
+    <button class="tab"
+            data-panel="registerPanel">
+      新規登録
+    </button>
+
+    <button class="tab"
+            data-panel="masterPanel">
+      マスタ一覧
+    </button>
+
+    <button class="tab"
+            data-panel="updatePanel">
+      棚番地変更
+    </button>
+  </nav>
+
+  <section id="scanPanel"
+           class="panel active">
     <div class="card">
-      <h2>QRコードをかざす</h2>
+      <h2>QRコードから保管場所を確認</h2>
+
       <p class="help">
-        「カメラを起動」を押し、本のQRコードを黄色い枠の中へ入れてください。
+        アイテムに付いているQRコードを黄色い枠へかざしてください。
+        認識後、自動的に棚番地を表示します。
       </p>
 
-      <button id="startBtn" class="primary">📷 カメラを起動</button>
-      <button id="stopBtn" class="danger" style="display:none;">カメラを停止</button>
+      <button id="startBtn"
+              class="primary">
+        📷 カメラを起動
+      </button>
+
+      <button id="stopBtn"
+              class="danger"
+              style="display:none;">
+        カメラを停止
+      </button>
 
       <div id="readerWrap">
         <div id="reader"></div>
         <div class="yellow-frame"></div>
-        <div class="scan-text">QRコードを黄色い枠へ</div>
+        <div class="scan-text">
+          QRコードを黄色い枠へ
+        </div>
       </div>
 
+      <div id="scanMessage"
+           class="message"></div>
 
-      <div id="scanMessage" class="message"></div>
-      <div id="scanLoading" class="loading">DBを検索しています...</div>
-      <div id="scanResult" class="result"></div>
+      <div id="scanLoading"
+           class="loading">
+        保管場所を検索しています...
+      </div>
+
+      <div id="scanResult"
+           class="result"></div>
     </div>
   </section>
 
-  <section id="searchPanel" class="panel">
+  <section id="searchPanel"
+           class="panel">
     <div class="card">
-      <h2>本の名前・キーワードから検索</h2>
+      <h2>アイテム名から検索</h2>
+
       <p class="help">
-        本の名前、著者、キーワード、本IDの一部を入力してください。
+        アイテム名の一部を入力してください。
+        複数の言葉を空白で区切って検索できます。
       </p>
 
-      <label for="keyword">検索キーワード</label>
-      <input id="keyword" type="search" placeholder="例：VBA 初心者、夏目漱石">
-      <button id="searchBtn" class="primary">🔍 検索する</button>
+      <label for="keyword">
+        アイテム名
+      </label>
 
-      <div id="searchMessage" class="message"></div>
-      <div id="searchLoading" class="loading">DBを検索しています...</div>
-      <div id="searchResult" class="result"></div>
+      <input id="keyword"
+             type="search"
+             placeholder="例：六角ボルト M6"
+             autocomplete="off">
+
+      <button id="searchBtn"
+              class="primary">
+        🔍 検索する
+      </button>
+
+      <div id="searchMessage"
+           class="message"></div>
+
+      <div id="searchLoading"
+           class="loading">
+        アイテムを検索しています...
+      </div>
+
+      <div id="searchResult"
+           class="result"></div>
     </div>
   </section>
 
-  <section id="registerPanel" class="panel">
+  <section id="registerPanel"
+           class="panel">
     <div class="card">
       <h2>アイテムを新規登録</h2>
+
       <p class="help">
-        QRコードに使用するID、アイテム名、戻し場所の棚番地を登録します。
+        QRコードに使用するアイテムID、
+        アイテム名、棚番地を登録します。
       </p>
 
-      <label for="registerId">ID</label>
-      <input id="registerId" type="text" placeholder="例：BK000004">
+      <label for="registerId">
+        アイテムID
+      </label>
 
-      <label for="registerName">アイテム名</label>
-      <input id="registerName" type="text" placeholder="例：Excel関数入門">
+      <input id="registerId"
+             type="text"
+             placeholder="例：ITM000004"
+             autocomplete="off">
 
-      <label for="registerShelf">棚番地</label>
-      <input id="registerShelf" type="text" placeholder="例：2F-PC-04-01">
+      <label for="registerName">
+        アイテム名
+      </label>
 
-      <button id="registerBtn" class="primary">新規登録する</button>
+      <input id="registerName"
+             type="text"
+             placeholder="例：交換用モーター"
+             autocomplete="off">
 
-      <div id="registerMessage" class="message"></div>
-      <div id="registerLoading" class="loading">登録しています...</div>
-      <div id="registerResult" class="result"></div>
+      <label for="registerShelf">
+        棚番地
+      </label>
+
+      <input id="registerShelf"
+             type="text"
+             placeholder="例：B-03-02"
+             autocomplete="off">
+
+      <button id="registerBtn"
+              class="primary">
+        新規登録する
+      </button>
+
+      <div id="registerMessage"
+           class="message"></div>
+
+      <div id="registerLoading"
+           class="loading">
+        登録しています...
+      </div>
+
+      <div id="registerResult"
+           class="result"></div>
     </div>
   </section>
 
-  <section id="masterPanel" class="panel">
+  <section id="masterPanel"
+           class="panel">
     <div class="card">
-      <h2>本マスタ一覧</h2>
+      <h2>アイテムマスタ一覧</h2>
+
       <p class="help">
-        スプレッドシートに登録されている全アイテムを、棚番地順で表示します。
+        登録されている全アイテムを、
+        棚番地順で表示します。
       </p>
 
-      <button id="loadMasterBtn" class="primary">📖 本マスタを表示</button>
+      <button id="loadMasterBtn"
+              class="primary">
+        📋 マスタを表示
+      </button>
 
-      <div id="masterMessage" class="message"></div>
-      <div id="masterLoading" class="loading">本マスタを読み込んでいます...</div>
-      <div id="masterSummary" class="master-summary" style="display:none;"></div>
-      <div id="masterResult" class="master-list"></div>
+      <div id="masterMessage"
+           class="message"></div>
+
+      <div id="masterLoading"
+           class="loading">
+        マスタを読み込んでいます...
+      </div>
+
+      <div id="masterSummary"
+           class="master-summary"
+           style="display:none;"></div>
+
+      <div id="masterResult"
+           class="master-list"></div>
     </div>
   </section>
 
-  <section id="updatePanel" class="panel">
+  <section id="updatePanel"
+           class="panel">
     <div class="card">
-      <h2>棚番地を変更する</h2>
+      <h2>棚番地を変更</h2>
+
       <p class="help">
-        棚移動があった場合、本IDと新しい棚番地を入力してください。
-        変更内容はスプレッドシートの「棚番地変更履歴」に保存されます。
+        アイテムIDを入力して現在の棚番地を確認し、
+        新しい棚番地へ変更します。
       </p>
 
-      <label for="updateBookId">本ID</label>
-      <input id="updateBookId" type="text" placeholder="例：BK000001">
+      <label for="updateItemId">
+        アイテムID
+      </label>
 
-      <button id="checkBookBtn" class="secondary">現在の棚番地を確認</button>
+      <input id="updateItemId"
+             type="text"
+             placeholder="例：ITM000001"
+             autocomplete="off">
 
-      <div id="currentBookBox" class="message info"></div>
+      <button id="checkItemBtn"
+              class="secondary">
+        現在の棚番地を確認
+      </button>
 
-      <label for="newShelf">新しい棚番地</label>
-      <input id="newShelf" type="text" placeholder="例：3F-B-05-02">
+      <div id="currentItemBox"
+           class="message info"></div>
 
+      <label for="newShelf">
+        新しい棚番地
+      </label>
 
-      <button id="updateShelfBtn" class="primary">棚番地を変更する</button>
+      <input id="newShelf"
+             type="text"
+             placeholder="例：C-02-04"
+             autocomplete="off">
 
-      <div id="updateMessage" class="message"></div>
-      <div id="updateLoading" class="loading">棚番地を更新しています...</div>
-      <div id="updateResult" class="result"></div>
+      <button id="updateShelfBtn"
+              class="primary">
+        棚番地を変更する
+      </button>
+
+      <div id="updateMessage"
+           class="message"></div>
+
+      <div id="updateLoading"
+           class="loading">
+        棚番地を変更しています...
+      </div>
+
+      <div id="updateResult"
+           class="result"></div>
     </div>
   </section>
-
 </main>
 
 <script>
   // ============================================================
-  // ★ここだけ変更してください★
-  // GASをウェブアプリとしてデプロイしたときに表示された
-  // https://script.google.com/macros/s/xxxxxxxxxxxx/exec
-  // を、下の文字列へ貼り付けます。
+  // ★ここへ現在使用中のGASウェブアプリURLを貼り付けてください★
+  // 例:
+  // const GAS_API_URL =
+  //   'https://script.google.com/macros/s/xxxxxxxxxxxx/exec';
   // ============================================================
-  const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzEpNRMvhPb_FBVJAdqoHcikrXqIiAPui0-eFDjhedbYW-YqMvznd3gfWAS6Uu64POjQw/exec';
+  const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbw6diPmx29K6kOQnEgm3aHWA-c0B5BVzlcHKmuMyr9h/dev';
   // ============================================================
 
   let scanner = null;
   let isScanning = false;
   let scanLocked = false;
 
-  document.querySelectorAll('.tab').forEach(button => {
-    button.addEventListener('click', async () => {
-      await stopCamera();
+  document
+    .querySelectorAll('.tab')
+    .forEach(button => {
+      button.addEventListener('click', async () => {
+        await stopCamera();
 
-      document.querySelectorAll('.tab')
-        .forEach(tab => tab.classList.remove('active'));
+        document
+          .querySelectorAll('.tab')
+          .forEach(tab =>
+            tab.classList.remove('active')
+          );
 
-      document.querySelectorAll('.panel')
-        .forEach(panel => panel.classList.remove('active'));
+        document
+          .querySelectorAll('.panel')
+          .forEach(panel =>
+            panel.classList.remove('active')
+          );
 
-      button.classList.add('active');
-      document.getElementById(button.dataset.panel)
-        .classList.add('active');
+        button.classList.add('active');
 
-      if (button.dataset.panel === 'masterPanel') {
-        loadMasterList();
+        document
+          .getElementById(button.dataset.panel)
+          .classList.add('active');
+
+        if (button.dataset.panel === 'masterPanel') {
+          loadMasterList();
+        }
+      });
+    });
+
+  document
+    .getElementById('startBtn')
+    .addEventListener('click', startCamera);
+
+  document
+    .getElementById('stopBtn')
+    .addEventListener('click', stopCamera);
+
+  document
+    .getElementById('searchBtn')
+    .addEventListener('click', searchItems);
+
+  document
+    .getElementById('registerBtn')
+    .addEventListener('click', registerItem);
+
+  document
+    .getElementById('loadMasterBtn')
+    .addEventListener('click', loadMasterList);
+
+  document
+    .getElementById('checkItemBtn')
+    .addEventListener('click', checkCurrentShelf);
+
+  document
+    .getElementById('updateShelfBtn')
+    .addEventListener('click', updateShelf);
+
+  document
+    .getElementById('keyword')
+    .addEventListener('keydown', event => {
+      if (event.key === 'Enter') {
+        searchItems();
       }
     });
-  });
-
-  document.getElementById('startBtn').addEventListener('click', startCamera);
-  document.getElementById('stopBtn').addEventListener('click', stopCamera);
-  document.getElementById('searchBtn').addEventListener('click', searchKeyword);
-  document.getElementById('checkBookBtn').addEventListener('click', checkCurrentShelf);
-  document.getElementById('updateShelfBtn').addEventListener('click', updateShelf);
-  document.getElementById('loadMasterBtn').addEventListener('click', loadMasterList);
-  document.getElementById('registerBtn').addEventListener('click', registerItem);
-
-
-  document.getElementById('keyword').addEventListener('keydown', event => {
-    if (event.key === 'Enter') searchKeyword();
-  });
 
   async function startCamera() {
     clearArea('scan');
@@ -571,14 +732,18 @@
     if (!apiUrlIsValid()) {
       showMessage(
         'scan',
-        'GAS_API_URLが未設定です。index.htmlの上部にある設定欄へGASの/exec URLを貼ってください。',
+        'GAS_API_URLが未設定です。',
         'error'
       );
       return;
     }
 
     if (typeof Html5Qrcode !== 'function') {
-      showMessage('scan', 'QR読取ライブラリを読み込めませんでした。', 'error');
+      showMessage(
+        'scan',
+        'QR読取ライブラリを読み込めませんでした。',
+        'error'
+      );
       return;
     }
 
@@ -592,8 +757,8 @@
           fps: 12,
           qrbox: function(width, height) {
             return {
-              width: Math.floor(width * 0.72),
-              height: Math.floor(height * 0.68)
+              width: Math.floor(width * .72),
+              height: Math.floor(height * .68)
             };
           },
           aspectRatio: 1.333334
@@ -603,21 +768,34 @@
       );
 
       isScanning = true;
-      document.getElementById('readerWrap').classList.add('active');
-      document.getElementById('startBtn').style.display = 'none';
-      document.getElementById('stopBtn').style.display = 'block';
+
+      document
+        .getElementById('readerWrap')
+        .classList.add('active');
+
+      document
+        .getElementById('startBtn')
+        .style.display = 'none';
+
+      document
+        .getElementById('stopBtn')
+        .style.display = 'block';
 
     } catch (error) {
       showMessage(
         'scan',
-        'カメラを起動できませんでした。ChromeまたはSafariで開き、カメラを許可してください。詳細: ' + error,
+        'カメラを起動できませんでした。' +
+        'ブラウザのカメラ許可を確認してください。詳細: ' +
+        error,
         'error'
       );
     }
   }
 
   async function stopCamera() {
-    if (!scanner || !isScanning) return;
+    if (!scanner || !isScanning) {
+      return;
+    }
 
     try {
       await scanner.stop();
@@ -628,54 +806,76 @@
     isScanning = false;
     scanLocked = false;
 
-    document.getElementById('readerWrap').classList.remove('active');
-    document.getElementById('startBtn').style.display = 'block';
-    document.getElementById('stopBtn').style.display = 'none';
+    document
+      .getElementById('readerWrap')
+      .classList.remove('active');
+
+    document
+      .getElementById('startBtn')
+      .style.display = 'block';
+
+    document
+      .getElementById('stopBtn')
+      .style.display = 'none';
   }
 
   async function onScanSuccess(decodedText) {
-    if (scanLocked) return;
+    if (scanLocked) {
+      return;
+    }
 
     scanLocked = true;
 
-    const bookId = extractBookId(decodedText);
+    const itemId = extractItemId(decodedText);
 
-    if (navigator.vibrate) navigator.vibrate(120);
+    if (navigator.vibrate) {
+      navigator.vibrate(120);
+    }
 
     await stopCamera();
-    getBookById(bookId, 'scan');
+    getItemById(itemId, 'scan');
   }
 
-  function extractBookId(rawValue) {
+  function extractItemId(rawValue) {
     const raw = String(rawValue || '').trim();
 
     try {
       const url = new URL(raw);
       const idParam = url.searchParams.get('id');
 
-      if (idParam) return idParam.trim();
-
-      const parts = url.pathname.split('/').filter(Boolean);
-      if (parts.length) {
-        return decodeURIComponent(parts[parts.length - 1]).trim();
+      if (idParam) {
+        return idParam.trim();
       }
+
+      const parts = url.pathname
+        .split('/')
+        .filter(Boolean);
+
+      if (parts.length) {
+        return decodeURIComponent(
+          parts[parts.length - 1]
+        ).trim();
+      }
+
     } catch (_) {}
 
     return raw;
   }
 
-  function searchKeyword() {
-    const keyword = document.getElementById('keyword').value.trim();
+  function searchItems() {
+    const keyword = document
+      .getElementById('keyword')
+      .value
+      .trim();
 
     clearArea('search');
 
     if (!keyword) {
-      showMessage('search', '検索キーワードを入力してください。', 'error');
-      return;
-    }
-
-    if (!apiUrlIsValid()) {
-      showMessage('search', 'GAS_API_URLが未設定です。', 'error');
+      showMessage(
+        'search',
+        'アイテム名を入力してください。',
+        'error'
+      );
       return;
     }
 
@@ -686,77 +886,123 @@
         setLoading('search', false);
 
         if (!response || !response.ok) {
-          showMessage('search', response?.message || '検索に失敗しました。', 'error');
+          showMessage(
+            'search',
+            response?.message ||
+            '検索に失敗しました。',
+            'error'
+          );
           return;
         }
 
-        if (!response.books || response.books.length === 0) {
-          showMessage('search', '該当する本が見つかりませんでした。', 'info');
+        const items =
+          response.items ||
+          response.books ||
+          [];
+
+        if (items.length === 0) {
+          showMessage(
+            'search',
+            response.message ||
+            '該当するアイテムが見つかりませんでした。',
+            'info'
+          );
           return;
         }
 
-        showMessage('search', response.count + '件見つかりました。', 'success');
-        renderBooks(response.books, 'search');
+        showMessage(
+          'search',
+          items.length + '件見つかりました。',
+          'success'
+        );
+
+        renderItems(items, 'search');
       })
       .catch(error => {
         setLoading('search', false);
-        showMessage('search', error.message, 'error');
+
+        showMessage(
+          'search',
+          error.message,
+          'error'
+        );
       });
   }
 
-  function getBookById(id, area) {
+  function getItemById(id, area) {
     clearArea(area);
 
     if (!id) {
-      showMessage(area, '本IDを入力してください。', 'error');
-      return;
-    }
-
-    if (!apiUrlIsValid()) {
-      showMessage(area, 'GAS_API_URLが未設定です。', 'error');
+      showMessage(
+        area,
+        'QRコードからアイテムIDを取得できませんでした。',
+        'error'
+      );
       return;
     }
 
     setLoading(area, true);
 
-    callJsonp('book', { id })
+    callJsonp('item', { id: id })
       .then(response => {
         setLoading(area, false);
 
         if (!response || !response.ok) {
-          showMessage(area, response?.message || '検索に失敗しました。', 'error');
+          showMessage(
+            area,
+            response?.message ||
+            '検索に失敗しました。',
+            'error'
+          );
           return;
         }
 
-        renderBooks([response.book], area);
+        const item =
+          response.item ||
+          response.book;
+
+        renderItems([item], area);
       })
       .catch(error => {
         setLoading(area, false);
-        showMessage(area, error.message, 'error');
+
+        showMessage(
+          area,
+          error.message,
+          'error'
+        );
       });
   }
 
-
-
-
   function registerItem() {
-    const id = document.getElementById('registerId').value.trim();
-    const name = document.getElementById('registerName').value.trim();
-    const shelf = document.getElementById('registerShelf').value.trim();
+    const id = document
+      .getElementById('registerId')
+      .value
+      .trim();
+
+    const name = document
+      .getElementById('registerName')
+      .value
+      .trim();
+
+    const shelf = document
+      .getElementById('registerShelf')
+      .value
+      .trim();
 
     clearArea('register');
 
     if (!id || !name || !shelf) {
       showMessage(
         'register',
-        'ID、アイテム名、棚番地をすべて入力してください。',
+        'アイテムID、アイテム名、棚番地をすべて入力してください。',
         'error'
       );
       return;
     }
 
     if (!confirm(
-      'ID「' + id + '」を新規登録しますか？'
+      'アイテムID「' + id + '」を登録しますか？'
     )) {
       return;
     }
@@ -774,171 +1020,216 @@
         if (!response || !response.ok) {
           showMessage(
             'register',
-            response?.message || '新規登録に失敗しました。',
+            response?.message ||
+            '登録に失敗しました。',
             'error'
           );
           return;
         }
 
-        showMessage('register', response.message, 'success');
+        showMessage(
+          'register',
+          response.message,
+          'success'
+        );
 
-        const result = document.getElementById('registerResult');
-        result.innerHTML = `
-          <article class="book-card">
-            <div class="title">${escapeHtml(response.book.title)}</div>
-            <div class="meta">ID：${escapeHtml(response.book.id)}</div>
+        const item =
+          response.item ||
+          response.book;
 
-            <div class="shelf-box">
-              <div class="shelf-label">登録した棚番地</div>
-              <div class="shelf">${escapeHtml(response.book.shelf)}</div>
-            </div>
-          </article>
-        `;
-        result.classList.add('show');
+        renderItems([item], 'register');
 
-        document.getElementById('registerId').value = '';
-        document.getElementById('registerName').value = '';
-        document.getElementById('registerShelf').value = '';
+        document
+          .getElementById('registerId')
+          .value = '';
+
+        document
+          .getElementById('registerName')
+          .value = '';
+
+        document
+          .getElementById('registerShelf')
+          .value = '';
       })
       .catch(error => {
         setLoading('register', false);
-        showMessage('register', error.message, 'error');
+
+        showMessage(
+          'register',
+          error.message,
+          'error'
+        );
       });
   }
 
   function loadMasterList() {
-    const result = document.getElementById('masterResult');
-    const summary = document.getElementById('masterSummary');
+    const result = document
+      .getElementById('masterResult');
+
+    const summary = document
+      .getElementById('masterSummary');
 
     result.innerHTML = '';
     summary.style.display = 'none';
     showMasterMessage('', '');
 
-    if (!apiUrlIsValid()) {
-      showMasterMessage('GAS_API_URLが未設定です。', 'error');
-      return;
-    }
-
-    document.getElementById('masterLoading').classList.add('show');
+    document
+      .getElementById('masterLoading')
+      .classList.add('show');
 
     callJsonp('list')
       .then(response => {
-        document.getElementById('masterLoading').classList.remove('show');
+        document
+          .getElementById('masterLoading')
+          .classList.remove('show');
 
         if (!response || !response.ok) {
           showMasterMessage(
-            response?.message || '本マスタを取得できませんでした。',
+            response?.message ||
+            'マスタを取得できませんでした。',
             'error'
           );
           return;
         }
 
-        if (!response.books || response.books.length === 0) {
-          showMasterMessage('登録されているアイテムはありません。', 'info');
+        const items =
+          response.items ||
+          response.books ||
+          [];
+
+        if (items.length === 0) {
+          showMasterMessage(
+            '登録されているアイテムはありません。',
+            'info'
+          );
           return;
         }
 
-        summary.textContent = '登録件数：' + response.count + '件';
+        summary.textContent =
+          '登録件数：' + items.length + '件';
+
         summary.style.display = 'block';
 
-        result.innerHTML = response.books.map(book => `
-          <article class="master-row">
-            <div class="master-row-top">
-              <div>
-                <div class="master-title">
-                  ${escapeHtml(book.title || '名称未登録')}
-                </div>
-                <div class="master-id">
-                  ID：${escapeHtml(book.id)}
-                </div>
+        result.innerHTML = items
+          .map(item => `
+            <article class="master-row">
+              <div class="master-name">
+                ${escapeHtml(item.name || item.title)}
               </div>
-              <span class="status-badge">
-                ${escapeHtml(book.status || '未設定')}
-              </span>
-            </div>
 
-            <div class="master-shelf">
-              棚番地：${escapeHtml(book.shelf || '未登録')}
-            </div>
+              <div class="master-id">
+                アイテムID：
+                ${escapeHtml(item.id)}
+              </div>
 
-            <div class="master-detail">
-              著者：${escapeHtml(book.author || '-')}<br>
-              キーワード：${escapeHtml(book.keywords || '-')}
-            </div>
-          </article>
-        `).join('');
+              <div class="master-shelf">
+                棚番地：
+                ${escapeHtml(item.shelf || '未登録')}
+              </div>
+            </article>
+          `)
+          .join('');
       })
       .catch(error => {
-        document.getElementById('masterLoading').classList.remove('show');
-        showMasterMessage(error.message, 'error');
+        document
+          .getElementById('masterLoading')
+          .classList.remove('show');
+
+        showMasterMessage(
+          error.message,
+          'error'
+        );
       });
   }
 
-  function showMasterMessage(text, type) {
-    const message = document.getElementById('masterMessage');
-
-    if (!text) {
-      message.textContent = '';
-      message.className = 'message';
-      return;
-    }
-
-    message.textContent = text;
-    message.className = 'message show ' + type;
-  }
-
   function checkCurrentShelf() {
-    const id = document.getElementById('updateBookId').value.trim();
-    const box = document.getElementById('currentBookBox');
+    const id = document
+      .getElementById('updateItemId')
+      .value
+      .trim();
+
+    const box = document
+      .getElementById('currentItemBox');
 
     box.textContent = '';
     box.className = 'message info';
 
     if (!id) {
-      showMessage('update', '本IDを入力してください。', 'error');
+      showMessage(
+        'update',
+        'アイテムIDを入力してください。',
+        'error'
+      );
       return;
     }
 
     setLoading('update', true);
 
-    callJsonp('book', { id })
+    callJsonp('item', { id: id })
       .then(response => {
         setLoading('update', false);
 
         if (!response || !response.ok) {
-          showMessage('update', response?.message || '検索に失敗しました。', 'error');
+          showMessage(
+            'update',
+            response?.message ||
+            '検索に失敗しました。',
+            'error'
+          );
           return;
         }
 
-        box.textContent =
-          response.book.title +
-          ' ／ 現在の棚番地：' +
-          (response.book.shelf || '未登録');
+        const item =
+          response.item ||
+          response.book;
 
-        box.className = 'message info show';
+        box.textContent =
+          (item.name || item.title) +
+          ' ／ 現在の棚番地：' +
+          (item.shelf || '未登録');
+
+        box.className =
+          'message info show';
       })
       .catch(error => {
         setLoading('update', false);
-        showMessage('update', error.message, 'error');
+
+        showMessage(
+          'update',
+          error.message,
+          'error'
+        );
       });
   }
 
   function updateShelf() {
-    const id = document.getElementById('updateBookId').value.trim();
-    const shelf = document.getElementById('newShelf').value.trim();
+    const id = document
+      .getElementById('updateItemId')
+      .value
+      .trim();
+
+    const shelf = document
+      .getElementById('newShelf')
+      .value
+      .trim();
+
     clearArea('update');
 
     if (!id || !shelf) {
       showMessage(
         'update',
-        '本IDと新しい棚番地を入力してください。',
+        'アイテムIDと新しい棚番地を入力してください。',
         'error'
       );
       return;
     }
 
     if (!confirm(
-      '本ID「' + id + '」の棚番地を「' + shelf + '」へ変更しますか？'
+      'アイテムID「' +
+      id +
+      '」の棚番地を「' +
+      shelf +
+      '」へ変更しますか？'
     )) {
       return;
     }
@@ -946,8 +1237,8 @@
     setLoading('update', true);
 
     callJsonp('updateShelf', {
-      id,
-      shelf
+      id: id,
+      shelf: shelf
     })
       .then(response => {
         setLoading('update', false);
@@ -955,53 +1246,142 @@
         if (!response || !response.ok) {
           showMessage(
             'update',
-            response?.message || '棚番地の更新に失敗しました。',
+            response?.message ||
+            '棚番地の変更に失敗しました。',
             'error'
           );
           return;
         }
 
-        showMessage('update', response.message, 'success');
+        showMessage(
+          'update',
+          response.message,
+          'success'
+        );
 
-        const result = document.getElementById('updateResult');
+        const item =
+          response.item ||
+          response.book;
+
+        const result = document
+          .getElementById('updateResult');
+
         result.innerHTML = `
-          <article class="book-card">
-            <div class="title">${escapeHtml(response.book.title)}</div>
-            <div class="meta">本ID：${escapeHtml(response.book.id)}</div>
+          <article class="item-card">
+            <div class="item-name">
+              ${escapeHtml(item.name || item.title)}
+            </div>
 
-            <dl>
-              <dt>変更前</dt>
-              <dd>${escapeHtml(response.book.oldShelf || '未登録')}</dd>
+            <div class="item-id">
+              アイテムID：
+              ${escapeHtml(item.id)}
+            </div>
 
-              <dt>変更後</dt>
-              <dd><strong>${escapeHtml(response.book.shelf)}</strong></dd>
-            </dl>
+            <div class="shelf-box">
+              <div class="shelf-label">
+                変更前
+              </div>
+
+              <div>
+                ${escapeHtml(item.oldShelf || '未登録')}
+              </div>
+            </div>
+
+            <div class="shelf-box">
+              <div class="shelf-label">
+                変更後
+              </div>
+
+              <div class="shelf-value">
+                ${escapeHtml(item.shelf)}
+              </div>
+            </div>
           </article>
         `;
+
         result.classList.add('show');
 
+        document
+          .getElementById('newShelf')
+          .value = '';
       })
       .catch(error => {
         setLoading('update', false);
-        showMessage('update', error.message, 'error');
+
+        showMessage(
+          'update',
+          error.message,
+          'error'
+        );
       });
   }
 
-  function apiUrlIsValid() {
-    return GAS_API_URL.startsWith('https://script.google.com/macros/s/')
-      && GAS_API_URL.endsWith('/exec');
+  function renderItems(items, area) {
+    const result = document
+      .getElementById(area + 'Result');
+
+    result.innerHTML = items
+      .map(item => `
+        <article class="item-card">
+          <div class="item-name">
+            ${escapeHtml(item.name || item.title || '名称未登録')}
+          </div>
+
+          <div class="item-id">
+            アイテムID：
+            ${escapeHtml(item.id)}
+          </div>
+
+          <div class="shelf-box">
+            <div class="shelf-label">
+              保管場所・棚番地
+            </div>
+
+            <div class="shelf-value">
+              ${escapeHtml(item.shelf || '棚番地未登録')}
+            </div>
+          </div>
+
+          ${
+            item.updatedAt
+              ? `<div class="updated">
+                   最終更新：${escapeHtml(item.updatedAt)}
+                 </div>`
+              : ''
+          }
+        </article>
+      `)
+      .join('');
+
+    result.classList.add('show');
   }
 
   function callJsonp(action, params = {}) {
     return new Promise((resolve, reject) => {
-      const callbackName =
-        '__libraryCallback_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+      if (!apiUrlIsValid()) {
+        reject(
+          new Error('GAS_API_URLが未設定です。')
+        );
+        return;
+      }
 
-      const script = document.createElement('script');
+      const callbackName =
+        '__locationCallback_' +
+        Date.now() +
+        '_' +
+        Math.floor(Math.random() * 100000);
+
+      const script =
+        document.createElement('script');
 
       const timeout = setTimeout(() => {
         cleanup();
-        reject(new Error('APIの応答がありません。GASの公開設定を確認してください。'));
+
+        reject(
+          new Error(
+            'APIの応答がありません。GASの公開設定を確認してください。'
+          )
+        );
       }, 15000);
 
       function cleanup() {
@@ -1016,65 +1396,53 @@
       };
 
       const url = new URL(GAS_API_URL);
-      url.searchParams.set('action', action);
-      url.searchParams.set('callback', callbackName);
 
-      Object.entries(params).forEach(([key, value]) => {
-        url.searchParams.set(key, value);
-      });
+      url.searchParams.set(
+        'action',
+        action
+      );
+
+      url.searchParams.set(
+        'callback',
+        callbackName
+      );
+
+      Object
+        .entries(params)
+        .forEach(([key, value]) => {
+          url.searchParams.set(key, value);
+        });
 
       script.src = url.toString();
 
       script.onerror = () => {
         cleanup();
-        reject(new Error('GAS APIへ接続できませんでした。'));
+
+        reject(
+          new Error(
+            'GAS APIへ接続できませんでした。'
+          )
+        );
       };
 
       document.body.appendChild(script);
     });
   }
 
-  function renderBooks(books, area) {
-    const result = document.getElementById(area + 'Result');
-
-    result.innerHTML = books.map(book => `
-      <article class="book-card">
-        <div class="title">${escapeHtml(book.title || '名称未登録')}</div>
-        <div class="meta">
-          ${book.author ? escapeHtml(book.author) + ' ／ ' : ''}
-          本ID：${escapeHtml(book.id)}
-        </div>
-
-        <div class="shelf-box">
-          <div class="shelf-label">戻し場所・棚番地</div>
-          <div class="shelf">${escapeHtml(book.shelf || '棚番地未登録')}</div>
-        </div>
-
-        <dl>
-          <dt>本ID</dt>
-          <dd>${escapeHtml(book.id)}</dd>
-
-          <dt>状態</dt>
-          <dd>${escapeHtml(book.status || '未設定')}</dd>
-
-          <dt>キーワード</dt>
-          <dd>${escapeHtml(book.keywords || '-')}</dd>
-
-          <dt>最終更新</dt>
-          <dd>${escapeHtml(book.updatedAt || '-')}</dd>
-
-          <dt>備考</dt>
-          <dd>${escapeHtml(book.notes || '-')}</dd>
-        </dl>
-      </article>
-    `).join('');
-
-    result.classList.add('show');
+  function apiUrlIsValid() {
+    return GAS_API_URL
+      .startsWith(
+        'https://script.google.com/macros/s/'
+      ) &&
+      GAS_API_URL.endsWith('/exec');
   }
 
   function clearArea(area) {
-    const message = document.getElementById(area + 'Message');
-    const result = document.getElementById(area + 'Result');
+    const message = document
+      .getElementById(area + 'Message');
+
+    const result = document
+      .getElementById(area + 'Result');
 
     message.textContent = '';
     message.className = 'message';
@@ -1084,14 +1452,33 @@
   }
 
   function showMessage(area, text, type) {
-    const message = document.getElementById(area + 'Message');
+    const message = document
+      .getElementById(area + 'Message');
+
     message.textContent = text;
-    message.className = 'message show ' + type;
+    message.className =
+      'message show ' + type;
   }
 
   function setLoading(area, enabled) {
-    document.getElementById(area + 'Loading')
+    document
+      .getElementById(area + 'Loading')
       .classList.toggle('show', enabled);
+  }
+
+  function showMasterMessage(text, type) {
+    const message = document
+      .getElementById('masterMessage');
+
+    if (!text) {
+      message.textContent = '';
+      message.className = 'message';
+      return;
+    }
+
+    message.textContent = text;
+    message.className =
+      'message show ' + type;
   }
 
   function escapeHtml(value) {
@@ -1103,9 +1490,10 @@
       .replaceAll("'", '&#039;');
   }
 
-  window.addEventListener('pagehide', () => {
-    stopCamera();
-  });
+  window.addEventListener(
+    'pagehide',
+    stopCamera
+  );
 </script>
 </body>
 </html>
