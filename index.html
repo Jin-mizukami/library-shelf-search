@@ -60,7 +60,7 @@
 
     .tabs {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(4, 1fr);
       gap: 8px;
       margin-bottom: 13px;
     }
@@ -289,6 +289,108 @@
       margin: 0;
       word-break: break-word;
     }
+  
+    @media (max-width: 520px) {
+      .tabs {
+        grid-template-columns: 1fr;
+      }
+    }
+  
+    select {
+      width: 100%;
+      border: 1px solid #b8c7bd;
+      border-radius: 11px;
+      padding: 13px;
+      font-size: 16px;
+      background: white;
+    }
+
+    .master-toolbar {
+      display: grid;
+      grid-template-columns: 1fr 170px;
+      gap: 9px;
+      align-items: end;
+    }
+
+    .master-summary {
+      margin-top: 12px;
+      padding: 10px 12px;
+      background: var(--light);
+      border-radius: 10px;
+      color: var(--green);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .master-list {
+      margin-top: 12px;
+      display: grid;
+      gap: 9px;
+    }
+
+    .master-row {
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      padding: 13px;
+      background: white;
+    }
+
+    .master-row-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .master-title {
+      font-size: 16px;
+      font-weight: 900;
+      line-height: 1.4;
+    }
+
+    .status-badge {
+      flex: 0 0 auto;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: #e8f5ec;
+      color: var(--green);
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .master-id {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .master-shelf {
+      margin-top: 9px;
+      padding: 9px 11px;
+      background: #fff8c7;
+      border: 1px solid #eed65f;
+      border-radius: 9px;
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .master-detail {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    @media (max-width: 620px) {
+      .tabs {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .master-toolbar {
+        grid-template-columns: 1fr;
+      }
+    }
+
   </style>
 </head>
 
@@ -302,6 +404,8 @@
   <div class="tabs">
     <button class="tab active" data-panel="scanPanel">QRコード検索</button>
     <button class="tab" data-panel="searchPanel">本の名前で検索</button>
+    <button class="tab" data-panel="masterPanel">本マスタ一覧</button>
+    <button class="tab" data-panel="updatePanel">棚番地変更</button>
   </div>
 
   <section id="scanPanel" class="panel active">
@@ -346,6 +450,81 @@
       <div id="searchResult" class="result"></div>
     </div>
   </section>
+
+  <section id="masterPanel" class="panel">
+    <div class="card">
+      <h2>本マスタ一覧</h2>
+      <p class="help">
+        スプレッドシートの本マスタを一覧表示します。
+        本の名前、本ID、著者、棚番地、状態などで絞り込めます。
+      </p>
+
+      <div class="master-toolbar">
+        <div>
+          <label for="masterKeyword">一覧の絞り込み</label>
+          <input id="masterKeyword"
+                 type="search"
+                 placeholder="例：VBA、BK000001、2F-PC">
+        </div>
+
+        <div>
+          <label for="masterStatus">状態</label>
+          <select id="masterStatus">
+            <option value="">すべて</option>
+            <option value="在架">在架</option>
+            <option value="貸出中">貸出中</option>
+            <option value="返却待ち">返却待ち</option>
+            <option value="配架待ち">配架待ち</option>
+            <option value="修理中">修理中</option>
+            <option value="所在不明">所在不明</option>
+            <option value="除籍">除籍</option>
+          </select>
+        </div>
+      </div>
+
+      <button id="loadMasterBtn" class="primary">📖 本マスタを表示</button>
+      <button id="clearMasterBtn" class="secondary">絞り込みを解除</button>
+
+      <div id="masterMessage" class="message"></div>
+      <div id="masterLoading" class="loading">本マスタを読み込んでいます...</div>
+      <div id="masterSummary" class="master-summary" style="display:none;"></div>
+      <div id="masterResult" class="master-list"></div>
+    </div>
+  </section>
+
+  <section id="updatePanel" class="panel">
+    <div class="card">
+      <h2>棚番地を変更する</h2>
+      <p class="help">
+        棚移動があった場合、本IDと新しい棚番地を入力してください。
+        変更内容はスプレッドシートの「棚番地変更履歴」に保存されます。
+      </p>
+
+      <label for="updateBookId">本ID</label>
+      <input id="updateBookId" type="text" placeholder="例：BK000001">
+
+      <button id="checkBookBtn" class="secondary">現在の棚番地を確認</button>
+
+      <div id="currentBookBox" class="message info"></div>
+
+      <label for="newShelf">新しい棚番地</label>
+      <input id="newShelf" type="text" placeholder="例：3F-B-05-02">
+
+      <label for="operator">変更者名</label>
+      <input id="operator" type="text" placeholder="例：水上">
+
+      <label for="adminPin">管理PIN</label>
+      <input id="adminPin" type="password" inputmode="numeric"
+             placeholder="設定シートの管理PIN">
+
+      <button id="updateShelfBtn" class="primary">棚番地を変更する</button>
+
+      <div id="updateMessage" class="message"></div>
+      <div id="updateLoading" class="loading">棚番地を更新しています...</div>
+      <div id="updateResult" class="result"></div>
+    </div>
+  </section>
+
 </main>
 
 <script>
@@ -375,6 +554,10 @@
       button.classList.add('active');
       document.getElementById(button.dataset.panel)
         .classList.add('active');
+
+      if (button.dataset.panel === 'masterPanel') {
+        loadMasterList();
+      }
     });
   });
 
@@ -382,6 +565,16 @@
   document.getElementById('stopBtn').addEventListener('click', stopCamera);
   document.getElementById('manualBtn').addEventListener('click', searchManualId);
   document.getElementById('searchBtn').addEventListener('click', searchKeyword);
+  document.getElementById('checkBookBtn').addEventListener('click', checkCurrentShelf);
+  document.getElementById('updateShelfBtn').addEventListener('click', updateShelf);
+  document.getElementById('loadMasterBtn').addEventListener('click', loadMasterList);
+  document.getElementById('clearMasterBtn').addEventListener('click', clearMasterFilter);
+
+  document.getElementById('masterKeyword').addEventListener('keydown', event => {
+    if (event.key === 'Enter') loadMasterList();
+  });
+
+  document.getElementById('masterStatus').addEventListener('change', loadMasterList);
 
   document.getElementById('manualId').addEventListener('keydown', event => {
     if (event.key === 'Enter') searchManualId();
@@ -565,6 +758,208 @@
       .catch(error => {
         setLoading(area, false);
         showMessage(area, error.message, 'error');
+      });
+  }
+
+
+
+  function loadMasterList() {
+    const keyword = document.getElementById('masterKeyword').value.trim();
+    const status = document.getElementById('masterStatus').value;
+
+    const result = document.getElementById('masterResult');
+    const summary = document.getElementById('masterSummary');
+
+    result.innerHTML = '';
+    summary.style.display = 'none';
+    showMasterMessage('', '');
+
+    if (!apiUrlIsValid()) {
+      showMasterMessage('GAS_API_URLが未設定です。', 'error');
+      return;
+    }
+
+    document.getElementById('masterLoading').classList.add('show');
+
+    callJsonp('list', { q: keyword, status: status })
+      .then(response => {
+        document.getElementById('masterLoading').classList.remove('show');
+
+        if (!response || !response.ok) {
+          showMasterMessage(
+            response?.message || '本マスタを取得できませんでした。',
+            'error'
+          );
+          return;
+        }
+
+        if (!response.books || response.books.length === 0) {
+          showMasterMessage('条件に合う本はありません。', 'info');
+          return;
+        }
+
+        summary.textContent =
+          '表示件数：' + response.count + '件' +
+          (response.truncated
+            ? ' ／ 全' + response.total + '件中、先頭500件を表示'
+            : '');
+        summary.style.display = 'block';
+
+        result.innerHTML = response.books.map(book => `
+          <article class="master-row">
+            <div class="master-row-top">
+              <div>
+                <div class="master-title">
+                  ${escapeHtml(book.title || '名称未登録')}
+                </div>
+                <div class="master-id">
+                  本ID：${escapeHtml(book.id)}
+                </div>
+              </div>
+              <span class="status-badge">
+                ${escapeHtml(book.status || '未設定')}
+              </span>
+            </div>
+
+            <div class="master-shelf">
+              棚番地：${escapeHtml(book.shelf || '未登録')}
+            </div>
+
+            <div class="master-detail">
+              著者：${escapeHtml(book.author || '-')}<br>
+              キーワード：${escapeHtml(book.keywords || '-')}
+            </div>
+          </article>
+        `).join('');
+      })
+      .catch(error => {
+        document.getElementById('masterLoading').classList.remove('show');
+        showMasterMessage(error.message, 'error');
+      });
+  }
+
+  function clearMasterFilter() {
+    document.getElementById('masterKeyword').value = '';
+    document.getElementById('masterStatus').value = '';
+    loadMasterList();
+  }
+
+  function showMasterMessage(text, type) {
+    const message = document.getElementById('masterMessage');
+
+    if (!text) {
+      message.textContent = '';
+      message.className = 'message';
+      return;
+    }
+
+    message.textContent = text;
+    message.className = 'message show ' + type;
+  }
+
+  function checkCurrentShelf() {
+    const id = document.getElementById('updateBookId').value.trim();
+    const box = document.getElementById('currentBookBox');
+
+    box.textContent = '';
+    box.className = 'message info';
+
+    if (!id) {
+      showMessage('update', '本IDを入力してください。', 'error');
+      return;
+    }
+
+    setLoading('update', true);
+
+    callJsonp('book', { id })
+      .then(response => {
+        setLoading('update', false);
+
+        if (!response || !response.ok) {
+          showMessage('update', response?.message || '検索に失敗しました。', 'error');
+          return;
+        }
+
+        box.textContent =
+          response.book.title +
+          ' ／ 現在の棚番地：' +
+          (response.book.shelf || '未登録');
+
+        box.className = 'message info show';
+      })
+      .catch(error => {
+        setLoading('update', false);
+        showMessage('update', error.message, 'error');
+      });
+  }
+
+  function updateShelf() {
+    const id = document.getElementById('updateBookId').value.trim();
+    const shelf = document.getElementById('newShelf').value.trim();
+    const operator = document.getElementById('operator').value.trim();
+    const pin = document.getElementById('adminPin').value.trim();
+
+    clearArea('update');
+
+    if (!id || !shelf || !pin) {
+      showMessage(
+        'update',
+        '本ID、新しい棚番地、管理PINを入力してください。',
+        'error'
+      );
+      return;
+    }
+
+    if (!confirm(
+      '本ID「' + id + '」の棚番地を「' + shelf + '」へ変更しますか？'
+    )) {
+      return;
+    }
+
+    setLoading('update', true);
+
+    callJsonp('updateShelf', {
+      id,
+      shelf,
+      pin,
+      operator
+    })
+      .then(response => {
+        setLoading('update', false);
+
+        if (!response || !response.ok) {
+          showMessage(
+            'update',
+            response?.message || '棚番地の更新に失敗しました。',
+            'error'
+          );
+          return;
+        }
+
+        showMessage('update', response.message, 'success');
+
+        const result = document.getElementById('updateResult');
+        result.innerHTML = `
+          <article class="book-card">
+            <div class="title">${escapeHtml(response.book.title)}</div>
+            <div class="meta">本ID：${escapeHtml(response.book.id)}</div>
+
+            <dl>
+              <dt>変更前</dt>
+              <dd>${escapeHtml(response.book.oldShelf || '未登録')}</dd>
+
+              <dt>変更後</dt>
+              <dd><strong>${escapeHtml(response.book.shelf)}</strong></dd>
+            </dl>
+          </article>
+        `;
+        result.classList.add('show');
+
+        document.getElementById('adminPin').value = '';
+      })
+      .catch(error => {
+        setLoading('update', false);
+        showMessage('update', error.message, 'error');
       });
   }
 
